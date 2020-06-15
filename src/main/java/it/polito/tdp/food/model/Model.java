@@ -14,6 +14,8 @@ public class Model {
 	
 	FoodDao dao = new FoodDao();
 	Graph<Portion, DefaultWeightedEdge> grafo;
+	List<Portion> soluzione;
+	private int best=0;
 	
 	
 	public Graph<Portion, DefaultWeightedEdge> creaGrafo(int calorie) {
@@ -37,5 +39,35 @@ public class Model {
 		List<Portion> vicini = new ArrayList<>();
 		vicini.addAll(Graphs.neighborListOf(grafo, p));
 		return vicini;
+	}
+	
+	public List<Portion> cammino (int n, Portion p) {
+		List<Portion> parziale = new ArrayList<>();
+		parziale.add(p);
+		cerca(parziale, n, 0, 0);
+		return soluzione;
+	}
+
+	private void cerca(List<Portion> parziale, int n, int l, int peso) {
+		if(l==n) {
+			if(peso>best) {
+				best=peso;
+				soluzione = new ArrayList<>(parziale);
+			}
+			return;
+		}
+		
+		for(Portion p : Graphs.neighborListOf(grafo, parziale.get(parziale.size()-1))) {
+			if(!parziale.contains(p)) {
+				parziale.add(p);
+				cerca(parziale, n, l+1, (int) (peso+grafo.getEdgeWeight(grafo.getEdge(parziale.get(parziale.size()-2), p))));
+				parziale.remove(parziale.size()-1);
+		}
+		}	
+		
+	}
+	
+	public int best() {
+		return best;
 	}
 }
